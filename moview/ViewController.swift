@@ -8,10 +8,14 @@
 import UIKit
 import SafariServices
 
+var suggestedMovies: [Movie] = []
+var isSearching = false
+
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
 
     @IBOutlet var table: UITableView!
     @IBOutlet var field: UITextField!
+    
     
     var  movies = [Movie]()
     
@@ -21,14 +25,24 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         table.dataSource = self
         table.delegate = self
         field.delegate = self
+        
+        loadSuggestions()
     }
     
     //Field
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        isSearching = true
         searchMovies()
         return true
     }
-    
+
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        if let text = textField.text, text.isEmpty {
+            isSearching = false
+            table.reloadData()
+        }
+    }
+
     func searchMovies() {
         field.resignFirstResponder()
         
@@ -69,26 +83,63 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 self.table.reloadData()
             }
         }).resume()
-        
     }
     
     //Table
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movies.count
+        return isSearching ? movies.count : suggestedMovies.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MovieTableViewCell.identifier, for: indexPath) as! MovieTableViewCell
-        cell.configure(with: movies[indexPath.row])
+        let movie = isSearching ? movies[indexPath.row] : suggestedMovies[indexPath.row]
+        cell.configure(with: movie)
         return cell
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        //Show movie details
-        let url = "https://www.imdb.com/title/\(movies[indexPath.row].imdbID)/"
-        let vc = SFSafariViewController(url: URL(string: url)!)
-        present(vc, animated: true)
+        
+        let selectedMovie = isSearching ? movies[indexPath.row] : suggestedMovies[indexPath.row]
+        let detailVC = MovieDetailViewController(nibName: "MovieDetailViewController", bundle: nil)
+        detailVC.imdbID = selectedMovie.imdbID
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
+    
+    func loadSuggestions() {
+        let keywords = ["batman", "harry potter", "avengers", "inception", "matrix"]
+        suggestedMovies.removeAll()
+
+        let group = DispatchGroup()
+
+        for keyword in keywords {
+            group.enter()
+            let query = keyword.replacingOccurrences(of: " ", with: "%20")
+            guard let url = URL(string: "https://www.omdbapi.com/?apikey=7932d64a&s=\(query)") else {
+                group.leave()
+                continue
+            }
+
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                defer { group.leave() }
+
+                guard let data = data, error == nil else {
+                    return
+                }
+
+                do {
+                    let result = try JSONDecoder().decode(MovieResult.self, from: data)
+                    // İlk 2 filmi ekle (varsa)
+                    suggestedMovies.append(contentsOf: result.Search.prefix(2))
+                } catch {
+                    print("Decoding failed for keyword: \(keyword)")
+                }
+            }.resume()
+        }
+
+        group.notify(queue: .main) {
+            self.table.reloadData()
+        }
     }
 
 }

@@ -39,7 +39,6 @@
                     </label>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="bottom" secondItem="AXL-GY-25v" secondAttribute="bottom" constant="100" id="8wJ-un-zJh"/>
                     <constraint firstAttribute="trailing" secondItem="3B1-q7-e4j" secondAttribute="trailing" constant="10" id="DaE-i5-s4Q"/>
                     <constraint firstItem="AXL-GY-25v" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="FsD-XR-eIH"/>
                     <constraint firstItem="h8s-hj-Ix9" firstAttribute="leading" secondItem="AXL-GY-25v" secondAttribute="trailing" constant="20" id="GNM-c2-TSX"/>
