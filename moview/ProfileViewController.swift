@@ -17,9 +17,8 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Profil fotoğrafı (sistemden)
         profileImageView.image = UIImage(systemName: "person.crop.circle")
-        profileImageView.tintColor = .systemGray // isteğe bağlı
+        profileImageView.tintColor = .systemGray
         
         loadUserInfo()
     }
@@ -28,9 +27,8 @@ class ProfileViewController: UIViewController {
         do {
             try Auth.auth().signOut()
             
-            // LoginVC'yi XIB'den oluştur
             let loginVC = LoginViewController(nibName: "LoginViewController", bundle: nil)
-            loginVC.modalPresentationStyle = .fullScreen // isteğe bağlı: tam ekran olarak göster
+            loginVC.modalPresentationStyle = .fullScreen
 
             self.present(loginVC, animated: true)
             
@@ -47,11 +45,11 @@ class ProfileViewController: UIViewController {
 
     func loadUserInfo() {
         if let user = Auth.auth().currentUser {
-            nameLabel.text = "Ad Soyad: \(user.displayName ?? "-")"
-            emailLabel.text = "E-posta: \(user.email ?? "-")"
+            nameLabel.text = "\(user.displayName ?? "-")"
+            emailLabel.text = "\(user.email ?? "-")"
         } else {
-            nameLabel.text = "Ad Soyad: Giriş yapılmamış"
-            emailLabel.text = "E-posta: Giriş yapılmamış"
+            nameLabel.text = "Giriş yapılmamış"
+            emailLabel.text = "Giriş yapılmamış"
         }
     }
 }

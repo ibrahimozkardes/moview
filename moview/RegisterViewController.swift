@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class RegisterViewController: UIViewController {
     
@@ -34,23 +35,37 @@ class RegisterViewController: UIViewController {
         }
         
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                print("Kayıt hatası: \(error.localizedDescription)")
-            } else {
-                // Ad soyad güncelle
-                let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-                changeRequest?.displayName = name
-                changeRequest?.commitChanges { error in
-                    if let error = error {
-                        print("Ad soyad güncellenemedi: \(error.localizedDescription)")
-                    } else {
-                        print("Kayıt başarılı ve ad soyad ayarlandı!")
-                        self.dismiss(animated: true)
+                if let error = error {
+                    print("Kayıt hatası: \(error.localizedDescription)")
+                } else {
+                    let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+                    changeRequest?.displayName = name
+                    changeRequest?.commitChanges { error in
+                        if let error = error {
+                            print("Ad soyad güncellenemedi: \(error.localizedDescription)")
+                        } else {
+                            print("Kayıt başarılı ve ad soyad ayarlandı!")
+                            
+                            // Firestore'a kullanıcı bilgisi ekle
+                            if let uid = result?.user.uid {
+                                let db = Firestore.firestore()
+                                db.collection("users").document(uid).setData([
+                                    "fullName": name,
+                                    "email": email
+                                ]) { error in
+                                    if let error = error {
+                                        print("Kullanıcı Firestore'a eklenemedi: \(error.localizedDescription)")
+                                    } else {
+                                        print("Kullanıcı Firestore'a kaydedildi.")
+                                    }
+                                }
+                            }
+                            self.dismiss(animated: true)
+                        }
                     }
                 }
             }
         }
-    }
     
     @IBAction func didTapLogin() {
         self.dismiss(animated: true)

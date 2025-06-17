@@ -15,13 +15,10 @@ class MovieTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
     
     static let identifier: String = "MovieTableViewCell"
@@ -39,4 +36,12 @@ class MovieTableViewCell: UITableViewCell {
         }
     }
     
+    func configure(with watchlistMovie: WatchlistMovie) {
+        self.movieTitleLabel.text = watchlistMovie.title
+        self.movieYearLabel.text = watchlistMovie.year
+        let url = watchlistMovie.posterURL
+        if let data = try? Data(contentsOf: URL(string: url)!) {
+            self.moviePosterImageView.image = UIImage(data: data)
+        }
+    }
 }

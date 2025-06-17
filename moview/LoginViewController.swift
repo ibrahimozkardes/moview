@@ -30,11 +30,9 @@ class LoginViewController: UIViewController {
             } else {
                 print("Giriş başarılı")
                 
-                //Ana sayfa ekranı
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
                 let vc = storyboard.instantiateViewController(withIdentifier: "MainVC")
                 
-                // Navigation varsa push, yoksa root olarak göster
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                     let sceneDelegate = windowScene.delegate as? SceneDelegate {
                     let nav = UINavigationController(rootViewController: vc)

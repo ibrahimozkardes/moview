@@ -19,8 +19,12 @@ class WatchlistViewController: UIViewController, UITableViewDelegate, UITableVie
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        
+        tableView.register(MovieTableViewCell.nib(), forCellReuseIdentifier: MovieTableViewCell.identifier)
+        
         fetchWatchlist()
     }
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -44,7 +48,6 @@ class WatchlistViewController: UIViewController, UITableViewDelegate, UITableVie
                     self.watchlist = snapshot?.documents.compactMap { doc in
                         let data = doc.data()
 
-                        // Guard let yerine doğrudan nil döndürüyoruz
                         guard let title = data["title"] as? String,
                               let poster = data["poster"] as? String,
                               let year = data["year"] as? String else {
@@ -73,10 +76,11 @@ class WatchlistViewController: UIViewController, UITableViewDelegate, UITableVie
 
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             let movie = watchlist[indexPath.row]
-            let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath)
-            cell.textLabel?.text = movie.title
+            let cell = tableView.dequeueReusableCell(withIdentifier: MovieTableViewCell.identifier, for: indexPath) as! MovieTableViewCell
+            cell.configure(with: movie)
             return cell
         }
+
 }
 
 struct WatchlistMovie {

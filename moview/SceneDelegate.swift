@@ -18,7 +18,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         let loginVC = LoginViewController(nibName: "LoginViewController", bundle: nil)
 
-        // Eğer Navigation kullanmak istiyorsan:
         let navVC = UINavigationController(rootViewController: loginVC)
 
         window.rootViewController = navVC
